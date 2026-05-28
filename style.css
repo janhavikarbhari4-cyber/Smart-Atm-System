@@ -1,0 +1,281 @@
+/*
+ * DESIGN SYSTEM: THE PRECISION AUTHORITY
+ * Creative North Star: "The Architectural Ledger"
+ */
+
+:root {
+    /* Primary & Neutrals */
+    --primary: #000000;
+    --primary-container: #1c1b1b;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #444748;
+    --background: #f8f9ff;
+    
+    /* Surface Hierarchy (Level 0-2) */
+    --surface: #f8f9ff;                      /* Layer 0: The canvas */
+    --surface-container-low: #eff4ff;       /* Layer 1: Sub-sections / Sidebar */
+    --surface-container-highest: #d3e4fe;  /* Layer 1.5: Inactive utility panels */
+    --surface-container-lowest: #ffffff;   /* Layer 2: Interactive Cards / Content */
+    
+    /* Signal Layer */
+    --success: #006d35;
+    --success-container: #8df9a8;
+    --on-success-container: #00210c;
+    --warning: #ffb77d;
+    --error: #ba1a1a;
+    
+    /* Outline Fallback */
+    --outline-variant: rgba(196, 199, 199, 0.2); /* Ghost Border */
+}
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--on-surface);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, .metric-value {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+}
+
+.hidden { display: none !important; }
+
+/* Structural Layout: The Liquid Stack */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar: Level 1 Projection */
+aside {
+    width: 280px;
+    background-color: var(--surface-container-low);
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    border-right: 1px solid var(--outline-variant);
+}
+
+.logo {
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    color: var(--primary);
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    padding: 12px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.nav-item:hover {
+    background-color: var(--surface-container-highest);
+    color: var(--on-surface);
+}
+
+.nav-item.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Main Canvas: Level 0 */
+main {
+    flex: 1;
+    padding: 60px 80px; /* Generous Guttering */
+    max-width: 1400px;
+}
+
+/* Auth View: Centered Ledger */
+.auth-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.auth-card {
+    width: 400px;
+    background-color: var(--surface-container-lowest);
+    padding: 48px;
+    border-radius: 4px; /* Sharp technical look */
+}
+
+.auth-card h1 { font-size: 2rem; margin-bottom: 32px; }
+
+/* In-View Components */
+.section-header {
+    margin-bottom: 48px;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+
+/* Metric Blocks: Organic Brutalism */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-bottom: 64px;
+}
+
+.metric-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metric-value {
+    font-size: 3.5rem; /* Dramatic typographic scale */
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--on-surface-variant);
+}
+
+/* The Architectural Ledger: Content Cards */
+.content-card {
+    background-color: var(--surface-container-lowest);
+    padding: 40px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+}
+
+.content-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Precision Data Tables */
+.table-wrapper { width: 100%; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 16px;
+    color: var(--on-surface-variant);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+td {
+    padding: 16px;
+    font-size: 0.875rem;
+    color: var(--on-surface);
+}
+
+tr:hover td {
+    background-color: var(--surface-container-low);
+}
+
+/* Components: Precision Primitives */
+input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--outline-variant);
+    padding: 12px 0;
+    margin-bottom: 24px;
+    font-size: 1rem;
+    color: var(--on-surface);
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-bottom-color: var(--primary);
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 2px; /* Sm radius per spec */
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.85; }
+
+button.secondary {
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+}
+
+/* Trend Chips */
+.trend-chip {
+    display: inline-flex;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.trend-positive { background-color: var(--success-container); color: var(--success); }
+.trend-negative { background-color: #ffdad6; color: var(--error); }
+
+/* Progress Monitoring */
+.progress-track {
+    height: 4px;
+    background-color: var(--surface-container-highest);
+    width: 100%;
+    margin-top: 12px;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--primary);
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Quick Actions Card */
+.actions-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    aside { display: none; }
+    main { padding: 40px; }
+    .metrics-grid { grid-template-columns: 1fr; }
+}
