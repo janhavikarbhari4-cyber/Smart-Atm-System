@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart ATM | The Precision Authority</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Auth Interface (Login/Signup) -->
+    <div id="auth-view" class="auth-view">
+        <div class="auth-card">
+            <h1 id="auth-title">AUTHORIZE</h1>
+            <div id="login-form">
+                <input type="text" id="login-user" placeholder="USERNAME" required>
+                <input type="password" id="login-pin" placeholder="PIN (4-DIGIT)" maxlength="4" required>
+                <button onclick="auth.login()">Sign In</button>
+                <button class="secondary" style="margin-top: 12px; width: 100%;" onclick="ui.toggleAuth(true)">New Account</button>
+            </div>
+            <div id="signup-form" class="hidden">
+                <input type="text" id="signup-user" placeholder="SET USERNAME" required>
+                <input type="password" id="signup-pin" placeholder="SET 4-DIGIT PIN" maxlength="4" required>
+                <input type="number" id="signup-bal" placeholder="INITIAL BALANCE (₹)" required>
+                <input type="number" id="signup-goal" placeholder="SAVINGS GOAL (₹)" required>
+                <button onclick="auth.signup()">Register</button>
+                <button class="secondary" style="margin-top: 12px; width: 100%;" onclick="ui.toggleAuth(false)">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Interface -->
+    <div id="app-view" class="app-container hidden">
+        <aside>
+            <div class="logo">SMART ATM</div>
+            <div class="nav-links">
+                <div class="nav-item active" onclick="ui.showPage('dashboard')">OVERVIEW</div>
+                <div class="nav-item" onclick="ui.showPage('transactions')">LEDGER</div>
+                <div class="nav-item" onclick="ui.showPage('operations')">OPERATIONS</div>
+                <div class="nav-item" style="color: var(--error);" onclick="auth.logout()">TERMINATE SESSION</div>
+            </div>
+            <div style="margin-top: auto; font-size: 0.75rem; color: var(--on-surface-variant);">
+                USER: <span id="user-display" style="color: var(--primary); font-weight: 600;">GUEST</span>
+            </div>
+        </aside>
+
+        <main id="main-content">
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="page-view">
+                <div class="section-header">
+                    <h2>SYSTEM OVERVIEW</h2>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-block">
+                        <div class="metric-label">AVAILABLE LIQUIDITY</div>
+                        <div id="bal-text" class="metric-value">₹0</div>
+                    </div>
+                    <div class="metric-block">
+                        <div class="metric-label">SAVINGS TARGET</div>
+                        <div id="goal-text" class="metric-value">₹0</div>
+                    </div>
+                    <div class="metric-block">
+                        <div class="metric-label">PROGRESS STATUS</div>
+                        <div id="progress-percent" class="metric-value">0%</div>
+                        <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3>INTELLIGENCE INSIGHTS</h3>
+                    <div id="smart-insights" style="line-height: 1.6; color: var(--on-surface-variant);">
+                        Analyzing real-time transaction data...
+                    </div>
+                </div>
+
+                <div class="actions-card">
+                    <div class="content-card">
+                        <h3>QUICK DEPOSIT</h3>
+                        <input type="number" id="quick-dep" placeholder="AMOUNT (₹)">
+                        <button onclick="tx.submitQuick('DEPOSIT')">EXECUTE</button>
+                    </div>
+                    <div class="content-card">
+                        <h3>QUICK WITHDRAW</h3>
+                        <input type="number" id="quick-with" placeholder="AMOUNT (₹)">
+                        <button onclick="tx.submitQuick('WITHDRAW')">EXECUTE</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ledger View -->
+            <section id="view-transactions" class="page-view hidden">
+                <div class="section-header">
+                    <h2>ARCHITECTURAL LEDGER</h2>
+                </div>
+                <div class="content-card">
+                    <h3>TRANSACTION LOG</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>DATE_TIMESTAMP</th>
+                                    <th>ACTION_TYPE</th>
+                                    <th>AMOUNT_EXEC</th>
+                                    <th>NET_BALANCE</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-body">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Operations View -->
+            <section id="view-operations" class="page-view hidden">
+                <div class="section-header">
+                    <h2>OPERATIONAL CONTROLS</h2>
+                </div>
+                <div class="content-card" style="max-width: 500px;">
+                    <h3>UPDATE SAVINGS TARGET</h3>
+                    <input type="number" id="new-goal-input" placeholder="NEW GOAL (₹)">
+                    <button onclick="ui.setNewGoal()">ACTIVATE TARGET</button>
+                    <div id="goal-status" style="margin-top: 10px; font-size: 0.8rem;"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Alert Modal / Precision Notification -->
+    <div id="toast" style="position: fixed; bottom: 40px; right: 40px; background: var(--primary); color: white; padding: 20px 32px; border-radius: 2px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); font-weight: 500; font-size: 0.875rem; letter-spacing: 1px;" class="hidden">
+        SYSTEM ALERT
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
