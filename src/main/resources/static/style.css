@@ -274,8 +274,17 @@ button.secondary {
     gap: 20px;
 }
 
+a {
+    color: var(--primary);
+}
+
+p {
+    margin: 0;
+}
+
 @media (max-width: 1024px) {
     aside { display: none; }
     main { padding: 40px; }
     .metrics-grid { grid-template-columns: 1fr; }
 }
+

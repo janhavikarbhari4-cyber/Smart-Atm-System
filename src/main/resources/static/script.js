@@ -1,5 +1,5 @@
 // --- CONSTANTS ---
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "/api";
 
 // --- STATE MANAGEMENT ---
 let currentUserData = null;
@@ -25,6 +25,10 @@ const auth = {
 
             ui.notify("REGISTRATION SUCCESSFUL", "success");
             ui.toggleAuth(false);
+            document.getElementById('signup-user').value = '';
+            document.getElementById('signup-pin').value = '';
+            document.getElementById('signup-bal').value = '';
+            document.getElementById('signup-goal').value = '';
         } catch (e) {
             ui.notify(e.message);
         }
@@ -56,6 +60,9 @@ const auth = {
         currentUserData = null;
         document.getElementById('auth-view').classList.remove('hidden');
         document.getElementById('app-view').classList.add('hidden');
+        document.getElementById('login-user').value = '';
+        document.getElementById('login-pin').value = '';
+        ui.notify("LOGGED OUT", "success");
     }
 };
 
@@ -64,6 +71,11 @@ const tx = {
     async submitQuick(type) {
         const inputId = type === 'DEPOSIT' ? 'quick-dep' : 'quick-with';
         const amount = document.getElementById(inputId).value;
+
+        if (!amount || parseFloat(amount) <= 0) {
+            ui.notify("Please enter a valid amount");
+            return;
+        }
 
         try {
             const res = await fetch(`${API_BASE}/tx/execute`, {
@@ -111,92 +123,72 @@ const ui = {
     },
 
     async updateUI() {
-        // Fetch fresh data from backend
-        const res = await fetch(`${API_BASE}/user/data`);
-        if (res.ok) currentUserData = await res.json();
-
-        const u = currentUserData;
-        if (!u) return;
-
-        document.getElementById('user-display').innerText = u.username.toUpperCase();
-        document.getElementById('bal-text').innerText = `₹${u.balance.toLocaleString()}`;
-        document.getElementById('goal-text').innerText = `₹${u.goal.toLocaleString()}`;
+        if (!currentUserData) return;
         
-        const p = Math.min((u.balance / u.goal) * 100, 100);
-        document.getElementById('progress-bar').style.width = `${p}%`;
-        document.getElementById('progress-percent').innerText = `${p.toFixed(1)}%`;
-        
-        await this.generateInsights();
-    },
+        document.getElementById('balance-display').innerText = `$${currentUserData.balance.toFixed(2)}`;
+        document.getElementById('goal-display').innerText = `$${currentUserData.savingsGoal.toFixed(2)}`;
+        document.getElementById('progress-display').innerText = `${currentUserData.goalProgress.toFixed(1)}%`;
 
-    async setNewGoal() {
-        const input = document.getElementById('new-goal-input');
-        const goal = input.value;
+        // Fetch insights
         try {
-            const res = await fetch(`${API_BASE}/user/update-goal`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goal })
-            });
-            if (!res.ok) throw new Error("Failed to update goal");
-
-            await this.updateUI();
-            input.value = '';
-            ui.notify("SAVINGS TARGET UPDATED", "success");
+            const res = await fetch(`${API_BASE}/user/insights`);
+            const insights = await res.json();
+            document.getElementById('total-deposits').innerText = `$${insights.totalDeposits.toFixed(2)}`;
+            document.getElementById('total-withdrawals').innerText = `$${insights.totalWithdrawals.toFixed(2)}`;
         } catch (e) {
-            ui.notify(e.message);
+            console.error("Failed to fetch insights:", e);
         }
     },
 
     renderLedger() {
-        const txs = currentUserData.transactions;
-        const body = document.getElementById('ledger-body');
-        body.innerHTML = txs.slice().reverse().map(t => {
-            const date = new Date(t.timestamp).toLocaleString();
-            return `
-                <tr>
-                    <td>${date}</td>
-                    <td><span class="trend-chip" style="${t.type === 'DEPOSIT' ? 'background: #8df9a8; color: #006d35;' : 'background: #ffdad6; color: #ba1a1a;'}">${t.type}</span></td>
-                    <td>₹${t.amount.toLocaleString()}</td>
-                    <td>₹${t.balance.toLocaleString()}</td>
-                    <td style="color: var(--success); font-weight: 600;">CONFIRMED</td>
-                </tr>
-            `;
-        }).join('');
-    },
-
-    async generateInsights() {
-        const container = document.getElementById('smart-insights');
-        try {
-            const res = await fetch(`${API_BASE}/user/insights`);
-            const data = await res.json();
-            
-            let html = '';
-            if (data.status === 'ACHIEVED') {
-                html = `<p style="color: var(--success);">[SYSTEM] ACHIEVED: TARGET GOAL REACHED.</p>`;
-            } else {
-                html = `<p>[SUMMARY] DEFICIT: ₹${data.needed.toLocaleString()} REMAINING. </p>`;
-                if (data.status === 'ON_TRACK') {
-                    html += `<p>[PREDICTION] TARGET REACHED IN APPROX ${data.cycles} CYCLES.</p>`;
-                } else {
-                    html += `<p>[ALERT] ZERO SAVINGS VELOCITY DETECTED. GOAL AT RISK.</p>`;
-                }
-            }
-            if (data.highFrequency) {
-                html += `<p style="color: var(--warning); margin-top: 8px;">[WARNING] HIGH WITHDRAWAL FREQUENCY DETECTED IN RECENT LOGS.</p>`;
-            }
-            container.innerHTML = html;
-        } catch (e) {
-            container.innerHTML = "Error loading insights.";
+        const tbody = document.getElementById('tx-ledger');
+        if (!currentUserData || currentUserData.transactionHistory.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--on-surface-variant);">No transactions yet</td></tr>';
+            return;
         }
+
+        tbody.innerHTML = currentUserData.transactionHistory.map(tx => `
+            <tr>
+                <td>${tx.type}</td>
+                <td>$${tx.amount.toFixed(2)}</td>
+                <td>$${tx.balanceAfter.toFixed(2)}</td>
+                <td>${new Date(tx.timestamp).toLocaleString()}</td>
+            </tr>
+        `).join('');
     },
 
-    notify(msg, type = "error") {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.style.background = type === "success" ? "var(--success)" : "var(--primary)";
-        if (type === "warning") toast.style.background = "var(--warning)";
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 3000);
+    notify(message, type = "error") {
+        const notif = document.getElementById('notification');
+        notif.innerText = message;
+        notif.style.background = type === "success" ? "var(--success)" : "var(--error)";
+        notif.style.display = 'block';
+        setTimeout(() => notif.style.display = 'none', 3000);
     }
 };
+
+// --- GOAL UPDATE HANDLER ---
+async function updateGoalHandler() {
+    const newGoal = document.getElementById('new-goal').value;
+    if (!newGoal || parseFloat(newGoal) < 0) {
+        ui.notify("Please enter a valid goal");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/user/update-goal`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goal: newGoal })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        currentUserData = data;
+        await ui.updateUI();
+        document.getElementById('new-goal').value = '';
+        ui.notify("GOAL UPDATED SUCCESSFULLY", "success");
+    } catch (e) {
+        ui.notify(e.message);
+    }
+}
+

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart ATM System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Auth View -->
+    <div id="auth-view" class="auth-view">
+        <div class="auth-card">
+            <h1 id="auth-title">AUTHORIZE</h1>
+            
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="event.preventDefault(); auth.login();">
+                <input type="text" id="login-user" placeholder="Username" required>
+                <input type="password" id="login-pin" placeholder="PIN (4 digits)" maxlength="4" required>
+                <button type="submit">LOGIN</button>
+                <p style="margin-top: 20px; text-align: center; font-size: 0.875rem;">
+                    Don't have an account? <a href="#" onclick="ui.toggleAuth(true); return false;" style="color: var(--primary); text-decoration: none; font-weight: 600;">REGISTER</a>
+                </p>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="hidden" onsubmit="event.preventDefault(); auth.signup();">
+                <input type="text" id="signup-user" placeholder="Username" required>
+                <input type="password" id="signup-pin" placeholder="PIN (4 digits)" maxlength="4" required>
+                <input type="number" id="signup-bal" placeholder="Initial Balance" step="0.01" required>
+                <input type="number" id="signup-goal" placeholder="Savings Goal" step="0.01" required>
+                <button type="submit">REGISTER</button>
+                <p style="margin-top: 20px; text-align: center; font-size: 0.875rem;">
+                    Already have an account? <a href="#" onclick="ui.toggleAuth(false); return false;" style="color: var(--primary); text-decoration: none; font-weight: 600;">LOGIN</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- App View -->
+    <div id="app-view" class="hidden">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <aside>
+                <div class="logo">SMART ATM</div>
+                <nav class="nav-links">
+                    <div class="nav-item active" onclick="ui.showPage('dashboard')">Dashboard</div>
+                    <div class="nav-item" onclick="ui.showPage('transactions')">Transactions</div>
+                    <div class="nav-item" onclick="ui.showPage('settings')">Settings</div>
+                    <div class="nav-item" onclick="auth.logout()">Logout</div>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main>
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="page-view">
+                    <div class="section-header">
+                        <h2>Dashboard</h2>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-block">
+                            <div class="metric-value" id="balance-display">$0.00</div>
+                            <div class="metric-label">Current Balance</div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-value" id="goal-display">$0.00</div>
+                            <div class="metric-label">Savings Goal</div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-value" id="progress-display">0%</div>
+                            <div class="metric-label">Goal Progress</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="content-card">
+                        <h3>Quick Actions</h3>
+                        <div class="actions-card">
+                            <div>
+                                <input type="number" id="quick-dep" placeholder="Deposit Amount" step="0.01">
+                                <button onclick="tx.submitQuick('DEPOSIT')">DEPOSIT</button>
+                            </div>
+                            <div>
+                                <input type="number" id="quick-with" placeholder="Withdrawal Amount" step="0.01">
+                                <button onclick="tx.submitQuick('WITHDRAWAL')">WITHDRAW</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insights -->
+                    <div class="content-card">
+                        <h3>Financial Insights</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <p style="color: var(--on-surface-variant); font-size: 0.875rem; margin-bottom: 8px;">Total Deposits</p>
+                                <p style="font-size: 1.5rem; font-weight: 600;" id="total-deposits">$0.00</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--on-surface-variant); font-size: 0.875rem; margin-bottom: 8px;">Total Withdrawals</p>
+                                <p style="font-size: 1.5rem; font-weight: 600;" id="total-withdrawals">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions View -->
+                <div id="view-transactions" class="page-view hidden">
+                    <div class="section-header">
+                        <h2>Transaction History</h2>
+                    </div>
+                    <div class="content-card">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Balance After</th>
+                                        <th>Date & Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tx-ledger">
+                                    <tr><td colspan="4" style="text-align: center; color: var(--on-surface-variant);">No transactions yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="view-settings" class="page-view hidden">
+                    <div class="section-header">
+                        <h2>Settings</h2>
+                    </div>
+                    <div class="content-card">
+                        <h3>Update Savings Goal</h3>
+                        <input type="number" id="new-goal" placeholder="New Savings Goal" step="0.01">
+                        <button onclick="updateGoalHandler()">UPDATE GOAL</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" style="position: fixed; bottom: 20px; right: 20px; padding: 16px 24px; border-radius: 4px; background: var(--primary); color: white; display: none; z-index: 1000; max-width: 300px;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
